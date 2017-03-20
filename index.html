@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>Untitled Document</title>
+	<meta charset="UTF-8">
+	<meta name="description" content="">
+	<meta name="keywords" content="">
+	<meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0" />
+
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css">
+</head>
+
+<body>
+	<div id="circle">
+	</div>
+	<button> Draw </button>
+	<script>
+		var data = [{
+			"id": "first",
+			"percent": "68",
+			"fillColor": "#7d5a3d",
+		}, {
+			"id": "second",
+			"percent": "58",
+			"fillColor": "#fead77",
+		}, {
+			"id": "third",
+			"percent": "62",
+			"fillColor": "#279989",
+		}, {
+			"id": "fourth",
+			"percent": "60",
+			"fillColor": "#f1b434",
+		}];
+
+		(function () {
+			var requestAnimationFrame = window.requestAnimationFrame ||
+				window.mozRequestAnimationFrame ||
+				window.webkitRequestAnimationFrame ||
+				window.msRequestAnimationFrame;
+			window.requestAnimationFrame = requestAnimationFrame;
+		})();
+
+		var size = 350;
+		var canvas, ctx;
+		var arcs = [];
+		var w = 600,
+			h = 600;
+		startArc = 100;
+		var curPerc = 0.001;
+		var usr_color = 160; //Change value to change color scheme
+		$(document).ready(function () {
+
+			var canvas_ = $("<canvas>", {
+				id: "circleChart"
+			});
+			canvas_.appendTo($("#circle"));
+
+			canvas = canvas_[0];
+			ctx = canvas.getContext("2d");
+
+			canvas.width = w;
+			canvas.height = h;
+
+			initCircle();
+
+			$("button").on("click", function () {
+				draw();
+			});
+
+
+		});
+
+		function initCircle() {
+			reset();
+			for (var k = 0; k < data.length; k++) {
+				var d = new arc();
+				d.r = startArc;
+				startArc = startArc + 25;
+				var dataPercent = parseFloat(data[k].percent);
+				d.destination = (dataPercent / 100) * (Math.PI * 2) - (Math.PI / 2);
+				d.fillColor = data[k].fillColor;
+				arcs.push(d);
+			}
+		}
+		
+		function draw() {
+			for (var i = 0; i < arcs.length; i++) {
+				var a = arcs[i];
+				a.rot = ((Math.PI * 2) * (curPerc / 100)) - Math.PI / 2;
+				if (a.rot < a.destination) {
+					a.draw();
+				}
+			}
+
+			//curPerc = curPerc + 0.10;
+			curPerc = curPerc + 1;
+
+			if (curPerc < 100) {
+				requestAnimationFrame(function () {
+					draw();
+				});
+			}
+		}
+
+		
+
+		function arc() {
+			this.r = 100;
+			this.rot = 1;
+			this.fillColor = "#000";
+			this.draw = function () {
+				ctx.beginPath();
+				ctx.arc(300, 300, this.r, (Math.PI / (2 / 3)), this.rot, false);
+				ctx.lineWidth = 20;
+				ctx.strokeStyle = this.fillColor;
+
+				ctx.stroke();
+
+				ctx.save();
+				ctx.fillStyle = "#333";
+				/*ctx.translate(300, 300);
+				ctx.rotate(this.rot);*/
+				ctx.font = "14px Arial Rounded MT Bold";
+
+				ctx.restore();
+			}
+		}
+
+		function reset() {
+			ctx.fillStyle = "#333";
+			ctx.fillRect(0, 0, w, h);
+		}
+	</script>
+</body>
+
+</html>
